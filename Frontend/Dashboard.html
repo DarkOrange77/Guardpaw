@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GuardPaw - Animal Rescue Scam Detection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Night Sky Gradient Colors */
+            --deep-navy: #0a0e27;
+            --midnight-blue: #1a1f3a;
+            --indigo: #2d2f5e;
+            --warm-dusk: #3d2f4a;
+            --amber-glow: #d4915d;
+            
+            /* Risk Level Colors */
+            --risk-high: #e8724d;
+            --risk-medium: #e8a54d;
+            --risk-low: #4d9ee8;
+            
+            /* UI Colors */
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-shadow: rgba(0, 0, 0, 0.3);
+            --text-primary: #f0f4f8;
+            --text-secondary: #a8b5c7;
+            --text-tertiary: #6b7a8f;
+            --star-glow: rgba(212, 145, 93, 0.15);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: linear-gradient(180deg, 
+                var(--deep-navy) 0%, 
+                var(--midnight-blue) 30%, 
+                var(--indigo) 60%, 
+                var(--warm-dusk) 100%
+            );
+            min-height: 100vh;
+            color: var(--text-primary);
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* Firefly particles background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 30%, var(--star-glow) 0%, transparent 3%),
+                radial-gradient(circle at 70% 20%, var(--star-glow) 0%, transparent 2%),
+                radial-gradient(circle at 40% 70%, var(--star-glow) 0%, transparent 2.5%),
+                radial-gradient(circle at 85% 60%, var(--star-glow) 0%, transparent 3%),
+                radial-gradient(circle at 10% 80%, var(--star-glow) 0%, transparent 2%);
+            opacity: 0.4;
+            pointer-events: none;
+            animation: twinkle 8s ease-in-out infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Fireflies container */
+        .fireflies {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+        
+        .firefly {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: radial-gradient(circle, rgba(212, 145, 93, 1), rgba(212, 145, 93, 0));
+            border-radius: 50%;
+            opacity: 0;
+            animation: fly 15s infinite ease-in-out;
+            filter: blur(1px);
+            box-shadow: 0 0 10px rgba(212, 145, 93, 0.8), 0 0 20px rgba(212, 145, 93, 0.4);
+        }
+        
+        @keyframes fly {
+            0% {
+                opacity: 0;
+                transform: translateY(100vh) translateX(0) scale(0);
+            }
+            10% {
+                opacity: 1;
+                transform: translateY(80vh) translateX(20px) scale(1);
+            }
+            30% {
+                opacity: 0.8;
+                transform: translateY(50vh) translateX(-30px) scale(1.2);
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(30vh) translateX(50px) scale(0.8);
+            }
+            70% {
+                opacity: 0.6;
+                transform: translateY(20vh) translateX(-20px) scale(1.1);
+            }
+            90% {
+                opacity: 0.3;
+                transform: translateY(5vh) translateX(30px) scale(0.9);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-10vh) translateX(0) scale(0);
+            }
+        }
+        
+        /* Snowflakes */
+        .snowflake {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: rgba(240, 244, 248, 0.6);
+            border-radius: 50%;
+            opacity: 0;
+            animation: fall 12s infinite linear;
+            filter: blur(0.5px);
+        }
+        
+        @keyframes fall {
+            0% {
+                opacity: 0;
+                transform: translateY(-10vh) translateX(0) rotate(0deg);
+            }
+            10% {
+                opacity: 0.7;
+            }
+            90% {
+                opacity: 0.5;
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(110vh) translateX(100px) rotate(360deg);
+            }
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+        
+        .logo {
+            font-family: 'Crimson Pro', serif;
+            font-size: 3.5rem;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+            background: linear-gradient(135deg, var(--amber-glow) 0%, #f0f4f8 50%, var(--amber-glow) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 40px rgba(212, 145, 93, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 0.95rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+        
+        /* Paste Section (Primary) */
+        .paste-section {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px var(--glass-shadow), 0 0 1px rgba(212, 145, 93, 0.2);
+            animation: fadeIn 1s ease-out 0.2s backwards;
+        }
+        
+        .input-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .tab-button {
+            flex: 1;
+            padding: 0.75rem 1.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+        }
+        
+        .tab-button:hover {
+            background: rgba(212, 145, 93, 0.1);
+            border-color: var(--amber-glow);
+            color: var(--text-primary);
+        }
+        
+        .tab-button.active {
+            background: linear-gradient(135deg, rgba(212, 145, 93, 0.2), rgba(232, 114, 77, 0.2));
+            border-color: var(--amber-glow);
+            color: var(--amber-glow);
+            box-shadow: 0 0 20px rgba(212, 145, 93, 0.2);
+        }
+        
+        .input-area {
+            display: none;
+        }
+        
+        .input-area.active {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .paste-area {
+            min-height: 180px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 2px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            color: var(--text-primary);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            resize: vertical;
+            width: 100%;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        
+        .paste-area:focus {
+            border-color: var(--amber-glow);
+            background: rgba(0, 0, 0, 0.3);
+            box-shadow: 0 0 30px rgba(212, 145, 93, 0.15);
+        }
+        
+        .paste-area::placeholder {
+            color: var(--text-tertiary);
+        }
+        
+        .paste-hint {
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-tertiary);
+            text-align: center;
+        }
+        
+        .paste-hint strong {
+            color: var(--amber-glow);
+        }
+        
+        /* Upload Section (Secondary) */
+        .upload-section {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 8px 32px var(--glass-shadow), 0 0 1px rgba(212, 145, 93, 0.2);
+            animation: fadeIn 1s ease-out 0.2s backwards;
+        }
+        
+        .upload-area {
+            border: 2px dashed var(--glass-border);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .upload-area::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(212, 145, 93, 0.1), transparent);
+            transition: left 0.5s;
+        }
+        
+        .upload-area:hover::before {
+            left: 100%;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--amber-glow);
+            background: rgba(212, 145, 93, 0.05);
+            box-shadow: 0 0 30px rgba(212, 145, 93, 0.15);
+        }
+        
+        .upload-icon {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+            opacity: 0.6;
+        }
+        
+        .upload-text {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .upload-subtext {
+            font-size: 0.85rem;
+            color: var(--text-tertiary);
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .image-preview {
+            margin-top: 1rem;
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 12px;
+            display: none;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .analyze-button {
+            margin-top: 1.5rem;
+            padding: 0.875rem 2.5rem;
+            background: linear-gradient(135deg, var(--amber-glow), #e8724d);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1rem;
+            letter-spacing: 0.05em;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(212, 145, 93, 0.3);
+            width: 100%;
+        }
+        
+        .analyze-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(212, 145, 93, 0.5);
+        }
+        
+        .analyze-button:active {
+            transform: translateY(0);
+        }
+        
+        /* Main Grid Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        /* Glass Card Base */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px var(--glass-shadow), 0 0 1px rgba(212, 145, 93, 0.2);
+            position: relative;
+            animation: fadeIn 1s ease-out backwards;
+        }
+        
+        .glass-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(212, 145, 93, 0.3), transparent);
+            opacity: 0.5;
+        }
+        
+        /* Risk Assessment Card (Center) */
+        .risk-card {
+            grid-column: 2;
+            text-align: center;
+            padding: 3rem 2rem;
+            animation-delay: 0.3s;
+        }
+        
+        .risk-label {
+            font-size: 0.85rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            margin-bottom: 1.5rem;
+        }
+        
+        .risk-level {
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            letter-spacing: 0.02em;
+            text-shadow: 0 0 40px currentColor;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.85; }
+        }
+        
+        .risk-level.high { color: var(--risk-high); }
+        .risk-level.medium { color: var(--risk-medium); }
+        .risk-level.low { color: var(--risk-low); }
+        
+        .confidence-badge {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 50px;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            color: var(--text-secondary);
+        }
+        
+        .risk-gauge {
+            width: 100%;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 2rem 0;
+            position: relative;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .gauge-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--risk-low), var(--risk-medium), var(--risk-high));
+            border-radius: 10px;
+            position: relative;
+            transition: width 1s ease-out;
+            box-shadow: 0 0 20px currentColor;
+        }
+        
+        .gauge-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.2), transparent);
+            border-radius: 10px;
+        }
+        
+        .risk-score {
+            font-size: 2.5rem;
+            font-weight: 600;
+            font-family: 'Crimson Pro', serif;
+            color: var(--amber-glow);
+            margin-top: 1rem;
+        }
+        
+        /* Side Panels */
+        .indicator-card {
+            animation-delay: 0.4s;
+        }
+        
+        .indicator-card.right {
+            animation-delay: 0.5s;
+        }
+        
+        .card-title {
+            font-size: 0.85rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--amber-glow);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(212, 145, 93, 0.2);
+            font-weight: 500;
+        }
+        
+        .indicator-list {
+            list-style: none;
+        }
+        
+        .indicator-item {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.3s ease;
+        }
+        
+        .indicator-item:hover {
+            color: var(--text-primary);
+            padding-left: 0.5rem;
+        }
+        
+        .indicator-item:last-child {
+            border-bottom: none;
+        }
+        
+        .indicator-icon {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        
+        .indicator-icon.warning { background: var(--risk-high); box-shadow: 0 0 10px var(--risk-high); }
+        .indicator-icon.caution { background: var(--risk-medium); box-shadow: 0 0 10px var(--risk-medium); }
+        .indicator-icon.safe { background: var(--risk-low); box-shadow: 0 0 10px var(--risk-low); }
+        
+        /* Explanation Section */
+        .explanation-section {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            width: 100%;
+        }
+        
+        .explanation-card {
+            animation-delay: 0.6s;
+            padding: 2rem;
+        }
+        
+        .explanation-card .card-title {
+            color: var(--amber-glow);
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .explanation-card.conflicts {
+            animation-delay: 0.7s;
+        }
+        
+        .reason-list {
+            list-style: none;
+        }
+        
+        .reason-item {
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-left: 3px solid var(--risk-medium);
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+        }
+        
+        .reason-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-left-color: var(--amber-glow);
+        }
+        
+        /* Source Icons */
+        .source-tags {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .source-tag {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: var(--text-tertiary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .source-tag:hover {
+            background: rgba(212, 145, 93, 0.1);
+            border-color: var(--amber-glow);
+            color: var(--text-primary);
+        }
+        
+        .source-icon {
+            font-size: 1rem;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .risk-card {
+                grid-column: 1;
+            }
+            
+            .explanation-section {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 2rem 1rem;
+            }
+            
+            .logo {
+                font-size: 2.5rem;
+            }
+            
+            .risk-level {
+                font-size: 3rem;
+            }
+            
+            .glass-card {
+                padding: 1.5rem;
+            }
+        }
+        
+        /* Demo Button */
+        .demo-button {
+            margin-top: 1rem;
+            padding: 0.625rem 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 50px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .demo-button:hover {
+            background: rgba(212, 145, 93, 0.1);
+            border-color: var(--amber-glow);
+            color: var(--text-primary);
+        }
+        
+        .dashboard-grid,
+        .explanation-section {
+            display: none;
+        }
+        
+        .dashboard-grid.visible,
+        .explanation-section.visible {
+            display: grid;
+        }
+    </style>
+</head>
+<body>
+    <!-- Fireflies and snowflakes -->
+    <div class="fireflies" id="fireflies"></div>
+    
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1 class="logo">GuardPaw</h1>
+            <p class="subtitle">Multimodal Scam Detection System</p>
+        </div>
+        
+        <!-- Paste Section (Primary Input) -->
+        <div class="paste-section">
+            <div class="input-tabs">
+                <button class="tab-button active" onclick="switchTab(this, 'paste')">📋 Paste Content</button>
+                <button class="tab-button" onclick="switchTab(this, 'link')">🔗 Paste Link</button>
+                <button class="tab-button" onclick="switchTab(this, 'upload')">📁 Upload Files</button>
+            </div>
+            
+            <!-- Paste Text/Image Area -->
+            <div class="input-area active" id="pasteArea">
+                <textarea 
+                    class="paste-area" 
+                    id="textPaste" 
+                    placeholder="Paste text, images, or screenshots here...&#x0a;&#x0a;• Press Ctrl+V (Cmd+V on Mac) to paste&#x0a;• Can paste BOTH images AND text together&#x0a;• Automatically detects content type"
+                ></textarea>
+                <img id="imagePreview" class="image-preview" alt="Pasted image preview">
+                <div class="paste-hint">
+                    💡 <strong>Tip:</strong> You can paste images directly from your clipboard (Ctrl+V / Cmd+V)
+                </div>
+            </div>
+            
+            <!-- Paste Link Area -->
+            <div class="input-area" id="linkArea">
+                <textarea 
+                    class="paste-area" 
+                    id="linkPaste" 
+                    placeholder="Paste suspicious link here...&#x0a;&#x0a;Example:&#x0a;https://example-rescue.com/donate&#x0a;&#x0a;We'll analyze the website, domain age, content, and images for scam indicators."
+                    style="min-height: 140px;"
+                ></textarea>
+            </div>
+            
+            <!-- Upload Area -->
+            <div class="input-area" id="uploadArea">
+                <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                    <div class="upload-icon">📁</div>
+                    <div class="upload-text">Click to select files</div>
+                    <div class="upload-subtext">Supports images, PDFs, and text documents</div>
+                    <input type="file" id="fileInput" class="file-input" multiple accept="image/*,.txt,.pdf,.doc,.docx">
+                </div>
+            </div>
+            
+            <button class="analyze-button" onclick="analyzeContent()">🔍 Analyze for Scams</button>
+            <button class="demo-button" onclick="loadDemoData()">Load Demo Analysis</button>
+        </div>
+        
+        <!-- Main Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Left Panel: Scam Indicators -->
+            <div class="glass-card indicator-card">
+                <h3 class="card-title">⚠ Scam Indicators</h3>
+                <ul class="indicator-list">
+                    <li class="indicator-item">
+                        <span class="indicator-icon warning"></span>
+                        <span>Emotional urgency language</span>
+                    </li>
+                    <li class="indicator-item">
+                        <span class="indicator-icon warning"></span>
+                        <span>Unverified payment methods</span>
+                    </li>
+                    <li class="indicator-item">
+                        <span class="indicator-icon caution"></span>
+                        <span>Generic stock photos detected</span>
+                    </li>
+                    <li class="indicator-item">
+                        <span class="indicator-icon caution"></span>
+                        <span>Domain registered recently</span>
+                    </li>
+                    <li class="indicator-item">
+                        <span class="indicator-icon warning"></span>
+                        <span>Missing organization details</span>
+                    </li>
+                </ul>
+                
+                <div class="source-tags">
+                    <div class="source-tag">
+                        <span class="source-icon">📝</span>
+                        <span>Text</span>
+                    </div>
+                    <div class="source-tag">
+                        <span class="source-icon">🖼</span>
+                        <span>Image</span>
+                    </div>
+                    <div class="source-tag">
+                        <span class="source-icon">🔗</span>
+                        <span>Link</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Center: Risk Assessment -->
+            <div class="glass-card risk-card">
+                <div class="risk-label">Risk Assessment</div>
+                <div class="risk-level high" id="riskLevel">HIGH RISK</div>
+                <div class="confidence-badge">
+                    Confidence: <strong id="confidence">87%</strong>
+                </div>
+                
+                <div class="risk-gauge">
+                    <div class="gauge-fill" id="gaugeFill" style="width: 78%"></div>
+                </div>
+                
+                <div class="risk-score">
+                    <span id="riskScore">78</span>
+                </div>
+            </div>
+            
+            <!-- Right Panel: Legitimacy Indicators -->
+            <div class="glass-card indicator-card right">
+                <h3 class="card-title">✓ Legitimacy Indicators</h3>
+                <ul class="indicator-list">
+                    <li class="indicator-item">
+                        <span class="indicator-icon safe"></span>
+                        <span>HTTPS secure connection</span>
+                    </li>
+                    <li class="indicator-item">
+                        <span class="indicator-icon safe"></span>
+                        <span>Contact information present</span>
+                    </li>
+                    <li class="indicator-item">
+                        <span class="indicator-icon caution"></span>
+                        <span>Some social media presence</span>
+                    </li>
+                    <li class="indicator-item">
+                        <span class="indicator-icon safe"></span>
+                        <span>Physical address mentioned</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Explanation Section -->
+        <div class="explanation-section">
+            <div class="glass-card explanation-card">
+                <h3 class="card-title">Why This Was Flagged</h3>
+                <ul class="reason-list">
+                    <li class="reason-item">
+                        Urgent language patterns detected: "Act now", "Last chance", "Emergency medical bills" - common manipulation tactics
+                    </li>
+                    <li class="reason-item">
+                        Payment request through untraceable methods (gift cards, cryptocurrency) without established organization verification
+                    </li>
+                    <li class="reason-item">
+                        Image reverse search shows stock photos used across multiple unrelated fundraising campaigns
+                    </li>
+                    <li class="reason-item">
+                        Domain registration less than 30 days old with privacy protection enabled
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="glass-card explanation-card conflicts">
+                <h3 class="card-title">Conflicting Signals Detected</h3>
+                <ul class="reason-list">
+                    <li class="reason-item">
+                        Website has HTTPS security but lacks proper organization credentials or 501(c)(3) verification
+                    </li>
+                    <li class="reason-item">
+                        Physical address provided does not match registered business location in public records
+                    </li>
+                    <li class="reason-item">
+                        Social media accounts exist but show minimal authentic engagement and recent creation dates
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Create fireflies and snowflakes
+        function createParticles() {
+            const firefliesContainer = document.getElementById('fireflies');
+            
+            // Create fireflies
+            for (let i = 0; i < 20; i++) {
+                const firefly = document.createElement('div');
+                firefly.className = 'firefly';
+                firefly.style.left = Math.random() * 100 + '%';
+                firefly.style.animationDelay = Math.random() * 15 + 's';
+                firefly.style.animationDuration = (15 + Math.random() * 10) + 's';
+                firefliesContainer.appendChild(firefly);
+            }
+            
+            // Create snowflakes
+            for (let i = 0; i < 30; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.className = 'snowflake';
+                snowflake.style.left = Math.random() * 100 + '%';
+                snowflake.style.animationDelay = Math.random() * 12 + 's';
+                snowflake.style.animationDuration = (8 + Math.random() * 8) + 's';
+                firefliesContainer.appendChild(snowflake);
+            }
+        }
+        
+        // Tab switching
+        function switchTab(btn, tabName) {
+            // Update buttons
+            document.querySelectorAll('.tab-button').forEach(b => {
+                b.classList.remove('active');
+            });
+            if (btn && btn.classList) btn.classList.add('active');
+
+            // Update areas
+            document.querySelectorAll('.input-area').forEach(area => {
+                area.classList.remove('active');
+            });
+
+            if (tabName === 'paste') {
+                document.getElementById('pasteArea').classList.add('active');
+            } else if (tabName === 'link') {
+                document.getElementById('linkArea').classList.add('active');
+            } else if (tabName === 'upload') {
+                document.getElementById('uploadArea').classList.add('active');
+            }
+        }
+        
+        // Handle paste events for images
+        document.addEventListener('paste', function(e) {
+            const items = e.clipboardData.items;
+            const imagePreview = document.getElementById('imagePreview');
+            
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') !== -1) {
+                    e.preventDefault();
+                    const blob = items[i].getAsFile();
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(event) {
+                        imagePreview.src = event.target.result;
+                        imagePreview.style.display = 'block';
+                        // Keep textarea visible so user can add text description alongside image
+                        document.getElementById('textPaste').style.display = 'block';
+                    };
+                    
+                    reader.readAsDataURL(blob);
+                    break;
+                }
+            }
+        });
+        // Extract URLs from text using regex
+        function extractUrlFromText(text) {
+            // Match http(s):// URLs
+            const urlPattern = /https?:\/\/[^\s]+/gi;
+            const matches = text.match(urlPattern);
+            return matches ? matches[0] : null;
+        }
+        
+        // Analyze content
+        async function analyzeContent() {
+            const textPasteEl = document.getElementById('textPaste');
+            const linkPasteEl = document.getElementById('linkPaste');
+            const imagePreview = document.getElementById('imagePreview');
+            const fileInput = document.getElementById('fileInput');
+            const activeArea = document.querySelector('.input-area.active');
+
+            let user_text = null;
+            let link_url = null;
+            let imagePath = null;
+            let content = '';
+
+            // Determine which input area is active and collect data
+            if (activeArea && activeArea.id === 'pasteArea') {
+                const textPaste = textPasteEl.value.trim();
+                
+                // Collect BOTH image and text if available (not either/or)
+                if (imagePreview.style.display === 'block') {
+                    imagePath = imagePreview.src;
+                    content = 'Pasted image';
+                }
+                
+                if (textPaste) {
+                    // Try to extract URL from text first
+                    const extractedUrl = extractUrlFromText(textPaste);
+                    if (extractedUrl && extractedUrl.startsWith('http')) {
+                        // If text contains a URL, use it as link_url for proper domain analysis
+                        link_url = extractedUrl;
+                        // Remove the URL from text to avoid duplicate analysis
+                        user_text = textPaste.replace(extractedUrl, '').trim() || null;
+                        content = (imagePath ? 'Image + ' : '') + 'Extracted link from text: ' + extractedUrl;
+                    } else {
+                        // Pure text input
+                        user_text = textPaste;
+                        content = (imagePath ? 'Image + ' : '') + 'Pasted text: ' + textPaste.substring(0, 50) + '...';
+                    }
+                }
+            } else if (activeArea && activeArea.id === 'linkArea') {
+                const linkPaste = linkPasteEl.value.trim();
+                if (linkPaste) {
+                    // Try to extract URL if user pasted text with URL
+                    const extractedUrl = extractUrlFromText(linkPaste);
+                    if (extractedUrl && extractedUrl.startsWith('http')) {
+                        link_url = extractedUrl;
+                    } else if (linkPaste.startsWith('http')) {
+                        link_url = linkPaste;
+                    }
+                    content = 'Link: ' + (link_url || linkPaste);
+                }
+            } else if (activeArea && activeArea.id === 'uploadArea') {
+                if (fileInput.files.length > 0) {
+                    content = fileInput.files.length + ' uploaded file(s)';
+                }
+            }
+
+            if (!content) {
+                alert('Please paste or upload content to analyze.');
+                return;
+            }
+
+            // Show loading state
+            document.body.style.opacity = '0.6';
+            document.body.style.pointerEvents = 'none';
+
+            try {
+                // Call backend pipeline - only include the active input fields
+                console.log('Sending analysis request...', { user_text: !!user_text, link_url: !!link_url, image: !!imagePath });
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_text: user_text || null,
+                        link_url: link_url || null,
+                        image_path: imagePath || null
+                    })
+                });
+
+                console.log('Response status:', response.status); // Debug
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    console.error('API Error:', error); // Debug
+                    throw new Error(error.error || 'Analysis failed');
+                }
+
+                const result = await response.json();
+                console.log('Analysis result received:', result); // Debug
+                displayResults(result);
+            } catch (error) {
+                console.error('Analysis error:', error); // Keep but more detailed
+                alert('Error: ' + error.message);
+            } finally {
+                document.body.style.opacity = '1';
+                document.body.style.pointerEvents = 'auto';
+            }
+        }
+        
+        // File upload handling
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const files = e.target.files;
+            if (files.length > 0) {
+                // Show file count feedback
+                const uploadText = document.querySelector('.upload-text');
+                uploadText.textContent = `${files.length} file(s) selected`;
+                uploadText.style.color = 'var(--amber-glow)';
+            }
+        });
+        
+        // Display results from pipeline
+        function displayResults(result) {
+            document.querySelector('.dashboard-grid').classList.add('visible');
+            document.querySelector('.explanation-section').classList.add('visible');
+            
+            const riskElement = document.getElementById('riskLevel');
+            const scoreElement = document.getElementById('riskScore');
+            const gaugeElement = document.getElementById('gaugeFill');
+            const confidenceElement = document.getElementById('confidence');
+            
+            console.log('API Result:', result); // Debug logging
+            
+            // Map risk level to class
+            const riskClass = result.risk_level.toLowerCase();
+            // FIXED: Don't multiply by 10 - risk_score is already 0-100 scale
+            const riskScore = Math.round(Math.abs(result.risk_score));
+            // Cap at 100% for gauge
+            const gaugeWidth = Math.min(riskScore, 100);
+            const confidenceMap = {
+                'High': 90,
+                'Moderate': 70,
+                'Low': 50
+            };
+            const confidenceScore = confidenceMap[result.confidence] || 70;
+            
+            // Reset classes
+            riskElement.className = 'risk-level';
+            
+            // Animate changes
+            setTimeout(() => {
+                riskElement.classList.add(riskClass);
+                riskElement.textContent = result.risk_level + ' RISK';
+                scoreElement.textContent = riskScore;
+                gaugeElement.style.width = gaugeWidth + '%';
+                confidenceElement.textContent = confidenceScore + '%';
+                
+                // Update patterns display
+                updatePatternsDisplay(result.matched_patterns);
+                
+                // Update explanation display
+                updateExplanationDisplay(result.explanation);
+            }, 100);
+            
+            // Scroll to results
+            setTimeout(() => {
+                const riskCard = document.querySelector('.risk-card');
+                if (riskCard) {
+                    riskCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 500);
+        }
+        
+        // Update patterns display
+        function updatePatternsDisplay(patterns) {
+            console.log('updatePatternsDisplay called with', patterns.length, 'patterns');
+            const leftPanel = document.querySelector('.indicator-card:not(.right)');
+            const rightPanel = document.querySelector('.indicator-card.right');
+            
+            console.log('Left panel found:', !!leftPanel, 'Right panel found:', !!rightPanel);
+            
+            if (!leftPanel || !rightPanel) {
+                console.error('ERROR: Could not find pattern display panels');
+                return;
+            }
+            
+            const scamPatterns = patterns.filter(p => p.type === 'scam');
+            const legitPatterns = patterns.filter(p => p.type === 'legit');
+            
+            // Update left panel (Scam Indicators)
+            let scamHTML = '<h3 class="card-title">Scam Indicators</h3><ul class="indicator-list">';
+            if (scamPatterns.length === 0) {
+                scamHTML += '<li class="indicator-item"><span class="indicator-icon safe"></span><span>No scam indicators detected</span></li>';
+            } else {
+                scamPatterns.forEach(p => {
+                    scamHTML += `<li class="indicator-item">
+                        <span class="indicator-icon warning"></span>
+                        <span>${p.name} (from ${p.source})</span>
+                    </li>`;
+                });
+            }
+            scamHTML += '</ul>';
+            leftPanel.innerHTML = scamHTML;
+            
+            // Update right panel (Legitimacy Indicators)
+            let legitHTML = '<h3 class="card-title">✓ Legitimacy Indicators</h3><ul class="indicator-list">';
+            if (legitPatterns.length === 0) {
+                legitHTML += '<li class="indicator-item"><span class="indicator-icon caution"></span><span>Limited legitimate indicators</span></li>';
+            } else {
+                legitPatterns.forEach(p => {
+                    legitHTML += `<li class="indicator-item">
+                        <span class="indicator-icon safe"></span>
+                        <span>${p.name} (from ${p.source})</span>
+                    </li>`;
+                });
+            }
+            legitHTML += '</ul>';
+            rightPanel.innerHTML = legitHTML;
+        }
+        
+        // Update explanation display
+        function updateExplanationDisplay(explanation) {
+            const section = document.querySelector('.explanation-section');
+            
+            if (!section) return;
+            
+            // Split explanation into paragraphs
+            const paragraphs = explanation.split('\n\n').filter(p => p.trim().length > 0);
+            
+            // Helper: convert simple markdown **bold** to <strong>
+            function mdBoldToHtml(text) {
+                return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            }
+
+            // Build HTML with full natural language explanation
+            let html = '<div class="glass-card explanation-card">';
+            html += '<h3 class="card-title">Detailed Analysis</h3>';
+            html += '<div class="explanation-content" style="line-height: 1.8; color: var(--text-primary); font-size: 1rem; font-family: \"Crimson Pro\", serif;">';
+            
+            paragraphs.forEach((para) => {
+                const block = para.trim();
+
+                // If block contains multiple bullet lines starting with '•', render as list
+                if (block.includes('\n') && block.indexOf('•') >= 0) {
+                    const items = block.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+                    html += '<ul style="margin:0.5rem 0 1rem 1.1rem;">';
+                    items.forEach(item => {
+                        // normalize leading bullets
+                        const text = item.replace(/^\u2022|^•|^[-*]\s?/, '').trim();
+                        html += `<li style="margin:0.4rem 0;">${mdBoldToHtml(text)}</li>`;
+                    });
+                    html += '</ul>';
+                } else if (block.match(/^[🚨⚠️✓]/)) {
+                    html += `<p style="margin:1rem 0; font-weight:600; border-left:3px solid var(--amber-glow); padding-left:0.9rem;">${mdBoldToHtml(block)}</p>`;
+                } else if (/^\*\*.*\*\*/.test(block) || block.startsWith('**')) {
+                    // header-like bold block
+                    html += `<p style="margin:1rem 0; font-weight:600;">${mdBoldToHtml(block)}</p>`;
+                } else {
+                    html += `<p style="margin:1rem 0;">${mdBoldToHtml(block)}</p>`;
+                }
+            });
+            
+            html += '</div>';
+            html += '</div>';
+            
+            section.innerHTML = html;
+        }
+        
+        // Demo data loader
+        function loadDemoData() {
+            document.querySelector('.dashboard-grid').classList.add('visible');
+            document.querySelector('.explanation-section').classList.add('visible');
+            
+            // Animate risk level change
+            const riskLevels = ['HIGH RISK', 'MEDIUM RISK', 'LOW RISK'];
+            const riskClasses = ['high', 'medium', 'low'];
+            const scores = [78, 52, 23];
+            const confidences = [87, 76, 91];
+            
+            const randomIndex = Math.floor(Math.random() * 3);
+            
+            const riskElement = document.getElementById('riskLevel');
+            const scoreElement = document.getElementById('riskScore');
+            const gaugeElement = document.getElementById('gaugeFill');
+            const confidenceElement = document.getElementById('confidence');
+            
+            // Reset classes
+            riskElement.className = 'risk-level';
+            
+            // Animate changes
+            setTimeout(() => {
+                riskElement.classList.add(riskClasses[randomIndex]);
+                riskElement.textContent = riskLevels[randomIndex];
+                scoreElement.textContent = scores[randomIndex];
+                gaugeElement.style.width = scores[randomIndex] + '%';
+                confidenceElement.textContent = confidences[randomIndex] + '%';
+            }, 100);
+        }
+        
+        // Initialize
+        window.addEventListener('load', function() {
+            // Create particles
+            createParticles();
+            
+            // Initialize gauge to 0% - will animate when analysis is performed
+            const gauge = document.getElementById('gaugeFill');
+            gauge.style.width = '0%';
+        });
+    </script>
+</body>
+</html>

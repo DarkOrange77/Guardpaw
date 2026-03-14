@@ -1,0 +1,14 @@
+google-generativeai
+langchain
+langchain-community
+faiss-cpu
+python-dotenv
+markdown
+gradio_client
+Pillow
+requests
+beautifulsoup4
+python-whois
+flask
+flask-cors
+google-search-results
